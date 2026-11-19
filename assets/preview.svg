@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<radialGradient id="bg" cx="35%" cy="45%" r="90%"><stop offset="0" stop-color="#3a2f52"/><stop offset="0.55" stop-color="#1c1a2b"/><stop offset="1" stop-color="#0b0a10"/></radialGradient>
+<radialGradient id="hl" cx="50%" cy="50%" r="70%"><stop offset="0" stop-color="#7a5c10"/><stop offset="1" stop-color="#3b2c08"/></radialGradient>
+</defs><rect width="1200" height="675" fill="url(#bg)"/>
+<text x="330" y="52" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">Quick Chat</text>
+<rect x="210" y="66" width="240" height="44" rx="22" fill="#0e0c0a" opacity="0.85" stroke="#4a443a"/>
+<rect x="226" y="75" width="44" height="26" rx="8" fill="#e8e2d4"/><text x="248" y="94" text-anchor="middle" font-size="15" font-weight="800" fill="#14110d">LB</text>
+<rect x="390" y="75" width="44" height="26" rx="8" fill="#e8e2d4"/><text x="412" y="94" text-anchor="middle" font-size="15" font-weight="800" fill="#14110d">RB</text>
+<circle cx="302" cy="88" r="8" fill="none" stroke="#8a8273" stroke-width="2.5"/>
+<circle cx="330" cy="88" r="8" fill="#ffd100" stroke="#ffd100" stroke-width="2.5"/>
+<circle cx="358" cy="88" r="8" fill="none" stroke="#8a8273" stroke-width="2.5"/>
+<circle cx="330" cy="388" r="260" fill="#2b2620" stroke="#6f675a" stroke-width="4"/>
+<path d="M564.5,474.7 A250,250 0 0 0 564.5,301.3 L400.8,361.8 A75.5,75.5 0 0 1 400.8,414.2 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
+<rect x="459.2" y="357.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="471.2" y="368.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="489.2" y="369.0" font-size="11.0" font-weight="400" fill="#9a9488">Thanks!</text>
+<text x="495.0" y="395.0" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffd100">Invite pls</text>
+<rect x="453.3" y="407.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="465.3" y="418.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="483.3" y="419.0" font-size="11.0" font-weight="400" fill="#9a9488">Follow me</text>
+<path d="M557.1,283.5 A250,250 0 0 0 434.5,160.9 L361.5,319.4 A75.5,75.5 0 0 1 398.6,356.5 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
+<rect x="419.8" y="240.3" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="431.8" y="251.8" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="449.8" y="252.3" font-size="11.0" font-weight="400" fill="#9a9488">Wait</text>
+<text x="446.7" y="278.3" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffd100">Ready!</text>
+<rect x="404.9" y="290.3" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="416.9" y="301.8" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="434.9" y="302.3" font-size="11.0" font-weight="400" fill="#9a9488">On my way</text>
+<path d="M416.7,153.5 A250,250 0 0 0 243.3,153.5 L303.8,317.2 A75.5,75.5 0 0 1 356.2,317.2 Z" fill="url(#hl)" stroke="#ffd100" stroke-width="3"/>
+<rect x="294.2" y="192.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="306.2" y="203.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="324.2" y="204.0" font-size="11.0" font-weight="400" fill="#9a9488">Thanks!</text>
+<text x="330.0" y="230.0" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffffff">Greeting (4)</text>
+<rect x="303.1" y="242.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="315.1" y="253.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="333.1" y="254.0" font-size="11.0" font-weight="400" fill="#9a9488">Bye!</text>
+<path d="M225.5,160.9 A250,250 0 0 0 102.9,283.5 L261.4,356.5 A75.5,75.5 0 0 1 298.5,319.4 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
+<rect x="192.4" y="240.3" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="204.4" y="251.8" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="222.4" y="252.3" font-size="11.0" font-weight="400" fill="#9a9488">No</text>
+<text x="213.3" y="278.3" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffd100">Yes</text>
+<rect x="189.4" y="290.3" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="201.4" y="301.8" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="219.4" y="302.3" font-size="11.0" font-weight="400" fill="#9a9488">LFG</text>
+<path d="M95.5,301.3 A250,250 0 0 0 95.5,474.7 L259.2,414.2 A75.5,75.5 0 0 1 259.2,361.8 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
+<rect x="135.2" y="357.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="147.2" y="368.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="165.2" y="369.0" font-size="11.0" font-weight="400" fill="#9a9488">Dance</text>
+<text x="165.0" y="395.0" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffd100">Buff pls</text>
+<rect x="138.1" y="407.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="150.1" y="418.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="168.1" y="419.0" font-size="11.0" font-weight="400" fill="#9a9488">Joke</text>
+<path d="M102.9,492.5 A250,250 0 0 0 225.5,615.1 L298.5,456.6 A75.5,75.5 0 0 1 261.4,419.5 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
+<rect x="180.5" y="473.7" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="192.5" y="485.2" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="210.5" y="485.7" font-size="11.0" font-weight="400" fill="#9a9488">Attack</text>
+<text x="213.3" y="511.7" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffd100">Dryad (8)</text>
+<rect x="183.5" y="523.7" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="195.5" y="535.2" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="213.5" y="535.7" font-size="11.0" font-weight="400" fill="#9a9488">Help!</text>
+<path d="M243.3,622.5 A250,250 0 0 0 416.7,622.5 L356.2,458.8 A75.5,75.5 0 0 1 303.8,458.8 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
+<rect x="285.3" y="522.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="297.3" y="533.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="315.3" y="534.0" font-size="11.0" font-weight="400" fill="#9a9488">No problem</text>
+<text x="330.0" y="560.0" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffd100">Sorry!</text>
+<rect x="309.1" y="572.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="321.1" y="583.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="339.1" y="584.0" font-size="11.0" font-weight="400" fill="#9a9488">GG</text>
+<path d="M434.5,615.1 A250,250 0 0 0 557.1,492.5 L398.6,419.5 A75.5,75.5 0 0 1 361.5,456.6 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
+<rect x="410.9" y="473.7" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="422.9" y="485.2" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">LB</text>
+<text x="440.9" y="485.7" font-size="11.0" font-weight="400" fill="#9a9488">Heal me</text>
+<text x="446.7" y="511.7" text-anchor="middle" font-size="17.0" font-weight="700" fill="#ffd100">OOM</text>
+<rect x="407.9" y="523.7" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
+<text x="419.9" y="535.2" text-anchor="middle" font-size="9.5" font-weight="800" fill="#14110d">RB</text>
+<text x="437.9" y="535.7" font-size="11.0" font-weight="400" fill="#9a9488">Drinking</text>
+<circle cx="330" cy="388" r="67.5" fill="none" stroke="#7d7566" stroke-width="5"/>
+<text x="330" y="384" text-anchor="middle" font-size="14" fill="#ffffff">Hello!</text>
+<text x="330" y="402" text-anchor="middle" font-size="11" fill="#8fd6ff">random of 4</text>
+<text x="680" y="230" font-size="76" font-weight="800" fill="#ffd100">Forever Pie</text>
+<text x="682" y="278" font-size="26" fill="#e8e2d4">Radial quick chat for gamepad</text>
+<g font-size="22" fill="#d6cfbf">
+<text x="682" y="360"><tspan fill="#ffd100" font-weight="700">Hold RB + press R3</tspan> - open the wheel</text>
+<text x="682" y="402"><tspan fill="#ffd100" font-weight="700">Stick</tspan> - pick one of 8 directions</text>
+<text x="682" y="444"><tspan fill="#ffd100" font-weight="700">LB / RB</tspan> - turn the page, 3 per direction</text>
+<text x="682" y="486"><tspan fill="#ffd100" font-weight="700">Let go</tspan> - send to chat</text>
+</g>
+<text x="682" y="560" font-size="18" fill="#9a9488">24 slots - say, yell, party - random phrase groups</text>
+<text x="682" y="588" font-size="18" fill="#9a9488">for World of Warcraft: Forever</text>
+</svg>

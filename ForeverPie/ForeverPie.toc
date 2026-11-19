@@ -1,0 +1,20 @@
+## Interface: 16001
+## Title: Forever Pie
+## Notes: Radial quick chat for gamepad in World of Warcraft: Forever, 24+ phrases on one wheel. Hold RB and press R3 to open, aim with the stick, press LB or RB to turn the page, let the stick go to send.
+## Notes-ruRU: Радиальный быстрый чат для геймпада в World of Warcraft: Forever, от 24 фраз на одном колесе. Зажмите RB и нажмите R3, наведите стиком, LB и RB листают страницы фраз, отпустите стик для отправки.
+## Author: mioe
+## Version: 1
+## Category: Chat & Communication
+## Category-enUS: Chat & Communication
+## Category-ruRU: Чат и общение
+## IconTexture: Interface\AddOns\ForeverPie\Media\icon
+## SavedVariables: ForeverPieDB
+## AllowLoadGameType: camelot
+## X-Category: Chat & Communication
+## X-Game: World of Warcraft: Forever
+## X-License: MIT
+
+Locale.lua
+Core.lua
+Wheel.lua
+Options.lua

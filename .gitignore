@@ -1,0 +1,7 @@
+.DS_Store
+Thumbs.db
+*.zip
+.release/
+.idea/
+.vscode/
+*.bak
