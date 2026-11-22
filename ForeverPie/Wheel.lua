@@ -20,9 +20,15 @@ local MOUSE_AIM_RADIUS = 45
 local LINE_ORDER = { ns.VARIANT_LB, ns.VARIANT_MAIN, ns.VARIANT_RB }
 local VARIANT_KEY = { [ns.VARIANT_LB] = "PADLSHOULDER", [ns.VARIANT_RB] = "PADRSHOULDER" }
 local PAGE_STEP = { PADLSHOULDER = -1, PADRSHOULDER = 1 }
+-- The triggers step through the wheels: LT up the column of dots, RT down.
+local WHEEL_STEP = { PADLTRIGGER = -1, PADRTRIGGER = 1 }
 local MAIN_PAGE = 2
+local DOT_SIZE, DOT_GAP = 15, 5
+-- The column of wheel dots sits this far left of the wheel art.
+local WHEEL_BAR_OFFSET = 30
 local KEY_FALLBACK_TEXT = {
 	PADLSHOULDER = "LB", PADRSHOULDER = "RB", PAD2 = "B",
+	PADLTRIGGER = "LT", PADRTRIGGER = "RT",
 	PADBACK = "Select", PADFORWARD = "Start", PADSOCIAL = "Share",
 	PADLSTICK = "L3", PADRSTICK = "R3",
 }
@@ -34,6 +40,9 @@ local page = MAIN_PAGE
 local passesInput = false
 local shownAt = 0
 local cancelled = false
+-- Triggers currently held, so one pull switches one wheel however it was detected.
+local triggerHeld = {}
+local triggerEvents = {}
 
 local function HasAtlas(atlas)
 	return C_Texture.GetAtlasInfo(atlas) ~= nil
@@ -167,6 +176,36 @@ local function CreateWheel()
 	frame.prompts[ns.VARIANT_LB]:SetPoint("RIGHT", leftDot, "LEFT", -3, -2)
 	frame.prompts[ns.VARIANT_RB] = CreatePrompt(frame, "PADRSHOULDER")
 	frame.prompts[ns.VARIANT_RB]:SetPoint("LEFT", rightDot, "RIGHT", 3, -2)
+
+	-- Wheel switcher: the same indicator turned upright on the left, LT above the dots and RT
+	-- below. One dot per wheel; only laid out when there is more than one wheel.
+	local wheelBar = frame:CreateTexture(nil, "OVERLAY", nil, -2)
+	wheelBar:SetPoint("CENTER", background, "LEFT", -WHEEL_BAR_OFFSET, 0)
+	if HasAtlas("gamepad-radial-menu-toptext") then
+		wheelBar:SetAtlas("gamepad-radial-menu-toptext", true)
+		wheelBar:SetRotation(math.rad(90))
+	else
+		wheelBar:SetColorTexture(0, 0, 0, 0.6)
+		wheelBar:SetSize(56, 300)
+	end
+	frame.WheelBar = wheelBar
+
+	frame.wheelDots = {}
+	for index = 1, ns.MAX_WHEELS do
+		-- Buttons, so the mouse test mode can switch wheels with a click.
+		local dot = CreateFrame("Button", nil, frame)
+		dot:SetSize(DOT_SIZE, DOT_SIZE)
+		dot.Art = dot:CreateTexture(nil, "OVERLAY")
+		dot.Art:SetAllPoints()
+		dot:SetScript("OnClick", function()
+			ns.SelectWheel(index)
+		end)
+		frame.wheelDots[index] = dot
+	end
+	frame.wheelPrompts = {
+		CreatePrompt(frame, "PADLTRIGGER"),
+		CreatePrompt(frame, "PADRTRIGGER"),
+	}
 
 	-- Footer bar: button hints and the chat channel of the aimed phrase.
 	local bottomBar = frame:CreateTexture(nil, "OVERLAY", nil, -1)
@@ -326,29 +365,61 @@ local function RefreshFooter(variant)
 	end
 end
 
+local function SetDotActive(texture, isActive)
+	if HasAtlas("gamepad-radialgamemenu-cursorbg-neutral") then
+		texture:SetAtlas("gamepad-radialgamemenu-cursorbg-" .. (isActive and "neutral" or "inactive"))
+	else
+		texture:SetColorTexture(1, 0.82, 0, isActive and 1 or 0.25)
+	end
+end
+
+-- Lays the wheel dots out as a column centered on the wheel, first wheel on top.
+local function RefreshWheelBar()
+	local count = ns.GetWheelCount()
+	local visible = count > 1
+	wheel.WheelBar:SetShown(visible)
+	for _, prompt in ipairs(wheel.wheelPrompts) do
+		prompt:SetShown(visible)
+	end
+
+	local step = DOT_SIZE + DOT_GAP
+	local top = (count - 1) * step / 2
+	for index, dot in ipairs(wheel.wheelDots) do
+		dot:SetShown(visible and index <= count)
+		if dot:IsShown() then
+			dot:ClearAllPoints()
+			dot:SetPoint("CENTER", wheel.Background, "LEFT", -WHEEL_BAR_OFFSET, top - (index - 1) * step)
+			dot:EnableMouse(sticky)
+			SetDotActive(dot.Art, index == ns.db.wheel)
+		end
+	end
+	if visible then
+		wheel.wheelPrompts[1]:ClearAllPoints()
+		wheel.wheelPrompts[1]:SetPoint("BOTTOM", wheel.wheelDots[1], "TOP", 0, 3)
+		wheel.wheelPrompts[2]:ClearAllPoints()
+		wheel.wheelPrompts[2]:SetPoint("TOP", wheel.wheelDots[count], "BOTTOM", 0, -3)
+	end
+end
+
 local function Refresh()
 	if not wheel or not wheel:IsShown() then
 		return
 	end
 	local variant = GetVariant()
-	wheel.HeaderText:SetText(L["Quick Chat"])
+	wheel:SetScale(ns.db.scale)
+	wheel.HeaderText:SetText(ns.GetWheelTitle())
 
 	for index, segment in ipairs(wheel.segments) do
 		RefreshSegment(segment, index, variant)
 	end
 
-	local hasDotArt = HasAtlas("gamepad-radialgamemenu-cursorbg-neutral")
 	for dotVariant, dot in pairs(wheel.dots) do
-		local isActive = dotVariant == variant
-		if hasDotArt then
-			dot:SetAtlas("gamepad-radialgamemenu-cursorbg-" .. (isActive and "neutral" or "inactive"))
-		else
-			dot:SetColorTexture(1, 0.82, 0, isActive and 1 or 0.25)
-		end
+		SetDotActive(dot, dotVariant == variant)
 	end
 	for promptVariant, prompt in pairs(wheel.prompts) do
 		prompt:SetAlpha(promptVariant == variant and 1 or 0.55)
 	end
+	RefreshWheelBar()
 
 	RefreshHighlight()
 	RefreshFooter(variant)
@@ -393,6 +464,26 @@ local function TurnPage(step)
 	Refresh()
 end
 
+-- LT and RT step through the wheels the same way, wrapping around. Unlike the page, the wheel
+-- is remembered: the one picked here is the one that opens next time.
+function ns.SelectWheel(index)
+	if index ~= ns.db.wheel and ns.GetWheel(index) then
+		PlayRadialSound("GAMEPAD_RADIAL_MENU_TAB_OVER")
+		ns.SetCurrentWheel(index)
+	end
+end
+
+local function PullTrigger(button)
+	if triggerHeld[button] then
+		return
+	end
+	triggerHeld[button] = true
+	local count = ns.GetWheelCount()
+	if count > 1 then
+		ns.SelectWheel((ns.db.wheel + WHEEL_STEP[button] - 1) % count + 1)
+	end
+end
+
 local function Confirm()
 	if aim ~= 0 then
 		ns.SendPhrase(aim, GetVariant())
@@ -423,7 +514,7 @@ end
 -- button as stuck. In combat nothing can be swallowed: there the wheel's buttons also do
 -- their normal game action.
 local function IsWheelButton(button)
-	return PAGE_STEP[button] or button == "PAD2" or button == ns.OPEN_KEY
+	return PAGE_STEP[button] or WHEEL_STEP[button] or button == "PAD2" or button == ns.OPEN_KEY
 end
 
 local function OnGamePadButtonDown(_, button)
@@ -440,6 +531,9 @@ local function OnGamePadButtonDown(_, button)
 
 	if PAGE_STEP[button] then
 		TurnPage(PAGE_STEP[button])
+	elseif WHEEL_STEP[button] then
+		triggerEvents[button] = true
+		PullTrigger(button)
 	elseif button == "PAD2" then
 		wheel:Hide()
 	elseif used then
@@ -467,7 +561,24 @@ local function OnGamePadStick(self, stick, x, y)
 	return not aiming
 end
 
+local function OnGamePadButtonUp(_, button)
+	triggerHeld[button] = nil
+end
+
 local function OnUpdate()
+	-- Triggers set up as modifiers may not arrive as button presses, so until a press event
+	-- has been seen for a trigger its state is read from the device instead.
+	for button in pairs(WHEEL_STEP) do
+		if not triggerEvents[button] then
+			local down = ns.IsPadButtonDown(button)
+			if down == true then
+				PullTrigger(button)
+			elseif down == false then
+				triggerHeld[button] = nil
+			end
+		end
+	end
+
 	if sticky then
 		-- Mouse test mode: the cursor direction from the hub aims the wheel.
 		local cursorX, cursorY = GetCursorPosition()
@@ -527,6 +638,7 @@ function ns.PrepareWheel()
 		wheel = CreateWheel()
 		wheel:EnableGamePadButton(true)
 		wheel:SetScript("OnGamePadButtonDown", OnGamePadButtonDown)
+		wheel:SetScript("OnGamePadButtonUp", OnGamePadButtonUp)
 		wheel:SetScript("OnUpdate", OnUpdate)
 		wheel:SetScript("OnMouseUp", OnMouseUp)
 		wheel:SetScript("OnMouseWheel", OnMouseWheel)
@@ -552,7 +664,8 @@ end
 
 -- The wheel stays open until a phrase is sent or it is cancelled, like the game's own menu wheel.
 -- stickyMode (used by /fpie toggle and the settings preview) adds mouse control: move to aim,
--- scroll to switch phrase, click to send.
+-- scroll to switch phrase, click a dot on the left to switch wheel, click to send.
+-- It opens on the wheel that was shown last.
 -- Returns true when the wheel was opened.
 function ns.ShowWheel(stickyMode)
 	if not ns.db then
@@ -571,8 +684,11 @@ function ns.ShowWheel(stickyMode)
 
 	cancelled = false
 	shownAt = GetTime()
+	-- A trigger that is already held (as an action bar modifier, say) must not switch the wheel.
+	for button in pairs(WHEEL_STEP) do
+		triggerHeld[button] = ns.IsPadButtonDown(button) == true or nil
+	end
 
-	wheel:SetScale(ns.db.scale)
 	wheel:EnableMouse(sticky)
 	wheel:EnableMouseWheel(sticky)
 	wheel:EnableKeyboard(sticky)

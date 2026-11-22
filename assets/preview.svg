@@ -10,6 +10,12 @@
 <circle cx="302" cy="88" r="8" fill="none" stroke="#8a8273" stroke-width="2.5"/>
 <circle cx="330" cy="88" r="8" fill="#ffd100" stroke="#ffd100" stroke-width="2.5"/>
 <circle cx="358" cy="88" r="8" fill="none" stroke="#8a8273" stroke-width="2.5"/>
+<rect x="14" y="288" width="44" height="200" rx="22" fill="#0e0c0a" opacity="0.85" stroke="#4a443a"/>
+<rect x="18" y="298" width="36" height="22" rx="7" fill="#e8e2d4"/><text x="36" y="314" text-anchor="middle" font-size="13" font-weight="800" fill="#14110d">LT</text>
+<rect x="18" y="456" width="36" height="22" rx="7" fill="#e8e2d4"/><text x="36" y="472" text-anchor="middle" font-size="13" font-weight="800" fill="#14110d">RT</text>
+<circle cx="36" cy="360" r="8" fill="#ffd100" stroke="#ffd100" stroke-width="2.5"/>
+<circle cx="36" cy="388" r="8" fill="none" stroke="#8a8273" stroke-width="2.5"/>
+<circle cx="36" cy="416" r="8" fill="none" stroke="#8a8273" stroke-width="2.5"/>
 <circle cx="330" cy="388" r="260" fill="#2b2620" stroke="#6f675a" stroke-width="4"/>
 <path d="M564.5,474.7 A250,250 0 0 0 564.5,301.3 L400.8,361.8 A75.5,75.5 0 0 1 400.8,414.2 Z" fill="#0e0c0a" stroke="#4a443a" stroke-width="1.5"/>
 <rect x="459.2" y="357.0" width="24.0" height="15.0" rx="4.0" fill="#e8e2d4" stroke="#8a8273" stroke-width="1"/>
@@ -78,14 +84,15 @@
 <circle cx="330" cy="388" r="67.5" fill="none" stroke="#7d7566" stroke-width="5"/>
 <text x="330" y="384" text-anchor="middle" font-size="14" fill="#ffffff">Hello!</text>
 <text x="330" y="402" text-anchor="middle" font-size="11" fill="#8fd6ff">random of 4</text>
-<text x="680" y="230" font-size="76" font-weight="800" fill="#ffd100">Forever Pie</text>
-<text x="682" y="278" font-size="26" fill="#e8e2d4">Radial quick chat for gamepad</text>
+<text x="680" y="210" font-size="76" font-weight="800" fill="#ffd100">Forever Pie</text>
+<text x="682" y="258" font-size="26" fill="#e8e2d4">Radial quick chat for gamepad</text>
 <g font-size="22" fill="#d6cfbf">
-<text x="682" y="360"><tspan fill="#ffd100" font-weight="700">Hold RB + press R3</tspan> - open the wheel</text>
-<text x="682" y="402"><tspan fill="#ffd100" font-weight="700">Stick</tspan> - pick one of 8 directions</text>
-<text x="682" y="444"><tspan fill="#ffd100" font-weight="700">LB / RB</tspan> - turn the page, 3 per direction</text>
-<text x="682" y="486"><tspan fill="#ffd100" font-weight="700">Let go</tspan> - send to chat</text>
+<text x="682" y="334"><tspan fill="#ffd100" font-weight="700">Hold RB + press R3</tspan> - open the wheel</text>
+<text x="682" y="376"><tspan fill="#ffd100" font-weight="700">Stick</tspan> - pick one of 8 directions</text>
+<text x="682" y="418"><tspan fill="#ffd100" font-weight="700">LB / RB</tspan> - turn the page, 3 per direction</text>
+<text x="682" y="460"><tspan fill="#ffd100" font-weight="700">LT / RT</tspan> - switch wheels, up to 5</text>
+<text x="682" y="502"><tspan fill="#ffd100" font-weight="700">Let go</tspan> - send to chat</text>
 </g>
-<text x="682" y="560" font-size="18" fill="#9a9488">24 slots - say, yell, party - random phrase groups</text>
-<text x="682" y="588" font-size="18" fill="#9a9488">for World of Warcraft: Forever</text>
+<text x="682" y="570" font-size="18" fill="#9a9488">24 slots per wheel - say, yell, guild - random phrase groups</text>
+<text x="682" y="598" font-size="18" fill="#9a9488">for World of Warcraft: Forever - v1.1</text>
 </svg>

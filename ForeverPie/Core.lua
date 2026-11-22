@@ -3,10 +3,13 @@ local L = ns.L
 
 ns.VARIANT_MAIN, ns.VARIANT_LB, ns.VARIANT_RB = 1, 2, 3
 ns.SEGMENT_COUNT = 8
+ns.MAX_WHEELS = 5
 
 local DEFAULTS = {
 	channel = "AUTO",
 	scale = 1,
+	-- The wheel shown last: it is the one that opens next time.
+	wheel = 1,
 }
 ns.DEFAULTS = DEFAULTS
 
@@ -41,6 +44,12 @@ ns.PHRASE_CHANNEL_ORDER = { "DEFAULT", "SAY", "YELL", "PARTY", "RAID", "INSTANCE
 local VALID_PHRASE_CHANNEL = {}
 for _, channel in ipairs(ns.PHRASE_CHANNEL_ORDER) do
 	VALID_PHRASE_CHANNEL[channel] = true
+end
+-- Per-wheel channel for its "Default" phrases: DEFAULT follows the "Default channel" setting.
+ns.WHEEL_CHANNEL_ORDER = { "DEFAULT", "AUTO", "SAY", "YELL", "PARTY", "RAID", "INSTANCE_CHAT", "GUILD" }
+local VALID_WHEEL_CHANNEL = {}
+for _, channel in ipairs(ns.WHEEL_CHANNEL_ORDER) do
+	VALID_WHEEL_CHANNEL[channel] = true
 end
 
 local PREFIX_TO_CHANNEL = {
@@ -79,6 +88,26 @@ local function CopyPhrases(source)
 	return phrases
 end
 
+-- A wheel is { name = header text, channel = where its "Default" phrases go, phrases = 8 x 3 slots }.
+local function CopyWheel(source)
+	local name = type(source.name) == "string" and strtrim(source.name) or ""
+	return {
+		name = name,
+		channel = VALID_WHEEL_CHANNEL[source.channel] and source.channel or "DEFAULT",
+		phrases = CopyPhrases(type(source.phrases) == "table" and source.phrases or nil),
+	}
+end
+
+-- set is a key of ns.PHRASE_SETS ("AUTO", a language, "EMOTES", "EMPTY").
+local function NewWheel(set)
+	return CopyWheel({ name = ns.GetDefaultWheelName(set), phrases = ns.GetDefaultPhrases(set) })
+end
+
+-- A fresh install starts with two wheels: phrases in the game language and emotes.
+local function DefaultWheels()
+	return { NewWheel("AUTO"), NewWheel("EMOTES") }
+end
+
 local function InitDB()
 	if type(ForeverPieDB) ~= "table" then
 		ForeverPieDB = {}
@@ -103,30 +132,114 @@ local function InitDB()
 			db[key] = value
 		end
 	end
-	-- Phrases are normalized on every load so a hand-edited or partial table can't break the wheel.
-	db.phrases = CopyPhrases(type(db.phrases) == "table" and db.phrases or ns.GetDefaultPhrases())
+
+	-- Wheels are normalized on every load so a hand-edited or partial table can't break anything.
+	local wheels = {}
+	if type(db.wheels) == "table" then
+		for index = 1, ns.MAX_WHEELS do
+			if type(db.wheels[index]) == "table" then
+				table.insert(wheels, CopyWheel(db.wheels[index]))
+			end
+		end
+	elseif type(db.phrases) == "table" then
+		-- 1.0 had a single wheel: it becomes the first one and the emotes wheel is added next to it.
+		wheels = { CopyWheel({ phrases = db.phrases }), NewWheel("EMOTES") }
+	end
+	if #wheels == 0 then
+		wheels = DefaultWheels()
+	end
+	db.wheels = wheels
+	db.phrases = nil
+	db.wheel = math.min(math.max(math.floor(db.wheel), 1), #wheels)
 	ns.db = db
 end
 
--- language picks the default set (see ns.PHRASE_LANGUAGES); nil follows the game client.
-function ns.ResetPhrases(language)
-	ns.db.phrases = CopyPhrases(ns.GetDefaultPhrases(language))
+local function RefreshWheel()
 	if ns.RefreshWheel then
 		ns.RefreshWheel()
 	end
 end
 
--- Export format: "FPIE1" and then channel, label and text of all 24 slots, joined with ";".
--- Everything that could break the single line is escaped, "|" too: edit boxes read it as markup.
+------------------------------------------------------------
+-- Wheels
+------------------------------------------------------------
+
+-- index defaults to the current wheel: the one the player switched to last.
+function ns.GetWheel(index)
+	return ns.db.wheels[index or ns.db.wheel]
+end
+
+function ns.GetWheelCount()
+	return #ns.db.wheels
+end
+
+function ns.SetCurrentWheel(index)
+	ns.db.wheel = math.min(math.max(index, 1), #ns.db.wheels)
+	RefreshWheel()
+end
+
+-- Header text of a wheel: its own name, or the addon's title when it has none.
+function ns.GetWheelTitle(index)
+	local wheel = ns.GetWheel(index)
+	local name = wheel and strtrim(wheel.name or "") or ""
+	return name ~= "" and name or L["Quick Chat"]
+end
+
+-- Adds a wheel filled with a default set. Returns its index, nil when the limit is reached.
+function ns.AddWheel(set)
+	local wheels = ns.db.wheels
+	if #wheels >= ns.MAX_WHEELS then
+		return nil
+	end
+	table.insert(wheels, NewWheel(set))
+	RefreshWheel()
+	return #wheels
+end
+
+-- The last wheel can't be removed.
+function ns.RemoveWheel(index)
+	local wheels = ns.db.wheels
+	if #wheels <= 1 or not wheels[index] then
+		return false
+	end
+	table.remove(wheels, index)
+	if ns.db.wheel > index then
+		ns.db.wheel = ns.db.wheel - 1
+	end
+	ns.db.wheel = math.min(ns.db.wheel, #wheels)
+	RefreshWheel()
+	return true
+end
+
+-- Replaces the phrases of one wheel with a default set; its name and channel stay.
+function ns.ResetWheel(index, set)
+	local wheel = ns.GetWheel(index)
+	if wheel then
+		wheel.phrases = CopyPhrases(ns.GetDefaultPhrases(set))
+		RefreshWheel()
+	end
+end
+
+-- Back to the fresh install state.
+function ns.ResetAllWheels()
+	ns.db.wheels = DefaultWheels()
+	ns.db.wheel = 1
+	RefreshWheel()
+end
+
+-- Export format: "FPIE1" and then channel, label and text of the 24 slots of one wheel, joined
+-- with ";". Everything that could break the single line is escaped, "|" too: edit boxes read it
+-- as markup.
 local EXPORT_HEADER = "FPIE1"
 local ESCAPES = { ["\\"] = "\\\\", [";"] = "\\s", ["\n"] = "\\n", ["|"] = "\\p" }
 local UNESCAPES = { ["\\"] = "\\", s = ";", n = "\n", p = "|" }
 
-function ns.ExportPhrases()
+function ns.ExportPhrases(wheelIndex)
+	local phrases = ns.GetWheel(wheelIndex).phrases
 	local fields = { EXPORT_HEADER }
 	for dir = 1, ns.SEGMENT_COUNT do
 		for variant = 1, 3 do
-			local phrase = ns.db.phrases[dir][variant]
+			local phrase = phrases[dir][variant]
 			for _, value in ipairs({ phrase.channel, phrase.label, phrase.text }) do
 				table.insert(fields, (value:gsub("\r", ""):gsub("[\\;\n|]", ESCAPES)))
 			end
@@ -135,13 +248,15 @@ function ns.ExportPhrases()
 	return table.concat(fields, ";")
 end
 
--- Replaces every phrase with the exported ones. Returns false when the text is not an export.
-function ns.ImportPhrases(text)
+-- Replaces every phrase of one wheel with the exported ones. Returns false when the text is not
+-- an export.
+function ns.ImportPhrases(text, wheelIndex)
+	local wheel = ns.GetWheel(wheelIndex)
 	local fields = {}
 	for field in (strtrim(text or "") .. ";"):gmatch("(.-);") do
 		table.insert(fields, (field:gsub("\\(.)", UNESCAPES)))
 	end
-	if fields[1] ~= EXPORT_HEADER or #fields ~= 1 + ns.SEGMENT_COUNT * 3 * 3 then
+	if not wheel or fields[1] ~= EXPORT_HEADER or #fields ~= 1 + ns.SEGMENT_COUNT * 3 * 3 then
 		return false
 	end
 	local source, index = {}, 2
@@ -152,21 +267,21 @@ function ns.ImportPhrases(text)
 			index = index + 3
 		end
 	end
-	ns.db.phrases = CopyPhrases(source)
-	if ns.RefreshWheel then
-		ns.RefreshWheel()
-	end
+	wheel.phrases = CopyPhrases(source)
+	RefreshWheel()
 	return true
 end
 
-function ns.GetPhrase(dir, variant)
-	local group = ns.db.phrases[dir]
+-- wheelIndex is optional everywhere below and defaults to the current wheel.
+function ns.GetPhrase(dir, variant, wheelIndex)
+	local wheel = ns.GetWheel(wheelIndex)
+	local group = wheel and wheel.phrases[dir]
 	return group and group[variant]
 end
 
 -- A slot's text holds one message per line; more than one line makes it a random group.
-function ns.GetPhraseLines(dir, variant)
-	local phrase = ns.GetPhrase(dir, variant)
+function ns.GetPhraseLines(dir, variant, wheelIndex)
+	local phrase = ns.GetPhrase(dir, variant, wheelIndex)
 	local lines = {}
 	if phrase then
 		for line in (phrase.text or ""):gmatch("[^\r\n]+") do
@@ -181,12 +296,12 @@ end
 
 -- Text shown on the wheel: the name, or the first message when no name is set.
 -- Second return is the number of messages in the slot.
-function ns.GetPhraseLabel(dir, variant)
-	local lines = ns.GetPhraseLines(dir, variant)
+function ns.GetPhraseLabel(dir, variant, wheelIndex)
+	local lines = ns.GetPhraseLines(dir, variant, wheelIndex)
 	if #lines == 0 then
 		return "", 0
 	end
-	local label = strtrim(ns.GetPhrase(dir, variant).label or "")
+	local label = strtrim(ns.GetPhrase(dir, variant, wheelIndex).label or "")
 	if label == "" then
 		label = lines[1]:match("^/%a+%s+(.+)$") or lines[1]
 	end
@@ -347,12 +462,16 @@ end
 
 -- Turns one stored line into the final message and chat type.
 -- Game commands come back with the "COMMAND" type and are run instead of sent.
-local function ResolveLine(line, phraseChannel)
+-- A phrase without its own type follows its wheel, and the wheel follows the general setting.
+local function ResolveLine(line, phraseChannel, wheelChannel)
 	if ParseCommand(line) then
 		return FillPlaceholders(line, true), "COMMAND"
 	end
 
 	local channel = phraseChannel
+	if channel == "DEFAULT" then
+		channel = wheelChannel
+	end
 	if channel == "DEFAULT" then
 		channel = ns.db.channel
 	end
@@ -381,7 +500,7 @@ function ns.ResolvePhrase(dir, variant)
 	if #lines == 0 then
 		return nil
 	end
-	local text, channel = ResolveLine(lines[1], ns.GetPhrase(dir, variant).channel)
+	local text, channel = ResolveLine(lines[1], ns.GetPhrase(dir, variant).channel, ns.GetWheel().channel)
 	return text, channel, #lines
 end
 
@@ -396,7 +515,7 @@ function ns.SendPhrase(dir, variant)
 	end
 
 	-- Random group: never repeat the previous pick twice in a row.
-	local slot = dir * 4 + variant
+	local slot = ns.db.wheel * 100 + dir * 4 + variant
 	local pick = 1
 	if #lines > 1 then
 		pick = math.random(#lines)
@@ -411,7 +530,7 @@ function ns.SendPhrase(dir, variant)
 		return false
 	end
 
-	local text, channel = ResolveLine(lines[pick], ns.GetPhrase(dir, variant).channel)
+	local text, channel = ResolveLine(lines[pick], ns.GetPhrase(dir, variant).channel, ns.GetWheel().channel)
 	if channel == "COMMAND" then
 		return RunCommand(ParseCommand(text))
 	end
@@ -545,12 +664,12 @@ SlashCmdList.FOREVERPIE = function(msg)
 			ns.ShowWheel(true)
 		end
 	elseif command == "reset" then
-		ns.ResetPhrases()
-		Print(L["Phrases were reset."])
+		ns.ResetAllWheels()
+		Print(L["Wheels were reset."])
 	else
 		Print(L["Usage:"])
 		print("  /fpie - " .. L["open settings"])
 		print("  /fpie toggle - " .. L["toggle the wheel for mouse testing"])
-		print("  /fpie reset - " .. L["reset phrases to the defaults"])
+		print("  /fpie reset - " .. L["reset all wheels to the defaults"])
 	end
 end

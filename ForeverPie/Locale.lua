@@ -32,9 +32,60 @@ function ns.GetClientPhraseLanguage()
 	return CLIENT_PHRASES[GetLocale()] or "enUS"
 end
 
--- language is a key of DEFAULT_PHRASES; nil or "AUTO" follows the game client.
-function ns.GetDefaultPhrases(language)
-	return DEFAULT_PHRASES[language] or DEFAULT_PHRASES[ns.GetClientPhraseLanguage()]
+-- Emote labels are interface text, so the set is built in the interface language on demand.
+local EMOTES = {}
+local function GetEmotePhrases()
+	local phrases = {}
+	for dir, group in pairs(EMOTES) do
+		phrases[dir] = {}
+		for variant, emote in ipairs(group) do
+			phrases[dir][variant] = { label = L[emote[1]], text = emote[2] }
+		end
+	end
+	return phrases
+end
+
+-- Sets a wheel can be filled with, in the order shown in the editor: the game language, every
+-- language above, the emotes and an empty wheel.
+function ns.GetPhraseSets()
+	local sets = { "AUTO" }
+	for _, entry in ipairs(ns.PHRASE_LANGUAGES) do
+		table.insert(sets, entry[1])
+	end
+	table.insert(sets, "EMOTES")
+	table.insert(sets, "EMPTY")
+	return sets
+end
+
+-- "AUTO" shows which language the game client resolves to.
+function ns.GetPhraseSetName(set)
+	if set == "EMOTES" then
+		return L["Emotes"]
+	elseif set == "EMPTY" then
+		return L["Empty"]
+	end
+	local language = set == "AUTO" and ns.GetClientPhraseLanguage() or set
+	for _, entry in ipairs(ns.PHRASE_LANGUAGES) do
+		if entry[1] == language then
+			return set == "AUTO" and ("%s (%s)"):format(L["Auto"], entry[2]) or entry[2]
+		end
+	end
+	return set
+end
+
+-- set is one of ns.GetPhraseSets(); nil or "AUTO" follows the game client. Empty set: nil.
+function ns.GetDefaultPhrases(set)
+	if set == "EMPTY" then
+		return nil
+	elseif set == "EMOTES" then
+		return GetEmotePhrases()
+	end
+	return DEFAULT_PHRASES[set] or DEFAULT_PHRASES[ns.GetClientPhraseLanguage()]
+end
+
+-- Name a new wheel gets with this set; an unnamed wheel shows the addon's title.
+function ns.GetDefaultWheelName(set)
+	return set == "EMOTES" and L["Emotes"] or ""
 end
 
 -- Wheel directions use the same numbering as Blizzard's GamepadRadial:
@@ -301,6 +352,41 @@ DEFAULT_PHRASES.ptBR = {
 	},
 }
 
+-- The emotes wheel: { label, command }. English commands work in every client language.
+EMOTES[3] = { { "Wave", "/wave" }, { "Hello", "/hello" }, { "Bye", "/bye" } }
+EMOTES[2] = { { "Cheer", "/cheer" }, { "Applaud", "/applaud" }, { "Salute", "/salute" } }
+EMOTES[1] = { { "Dance", "/dance" }, { "Flex", "/flex" }, { "Roar", "/roar" } }
+EMOTES[8] = { { "Laugh", "/laugh" }, { "Joke", "/silly" }, { "Flirt", "/flirt" } }
+EMOTES[7] = { { "Sit", "/sit" }, { "Sleep", "/sleep" }, { "Kneel", "/kneel" } }
+EMOTES[6] = { { "Cry", "/cry" }, { "Beg", "/beg" }, { "Shy", "/shy" } }
+EMOTES[5] = { { "Thank", "/thank" }, { "Bow", "/bow" }, { "Hug", "/hug" } }
+EMOTES[4] = { { "Nod", "/nod" }, { "No", "/no" }, { "Point", "/point" } }
+
+RU["Wave"] = "Помахать"
+RU["Hello"] = "Привет"
+RU["Bye"] = "Пока"
+RU["Cheer"] = "Ура"
+RU["Applaud"] = "Аплодисменты"
+RU["Salute"] = "Честь"
+RU["Dance"] = "Танец"
+RU["Flex"] = "Мускулы"
+RU["Roar"] = "Рык"
+RU["Laugh"] = "Смех"
+RU["Joke"] = "Шутка"
+RU["Flirt"] = "Флирт"
+RU["Sit"] = "Сесть"
+RU["Sleep"] = "Спать"
+RU["Kneel"] = "На колено"
+RU["Cry"] = "Плакать"
+RU["Beg"] = "Умолять"
+RU["Shy"] = "Смущение"
+RU["Thank"] = "Спасибо"
+RU["Bow"] = "Поклон"
+RU["Hug"] = "Обнять"
+RU["Nod"] = "Кивнуть"
+RU["No"] = "Нет"
+RU["Point"] = "Указать"
+
 RU["Quick Chat"] = "Быстрый чат"
 RU["Send"] = "Отправить"
 RU["Cancel"] = "Отмена"
@@ -338,7 +424,20 @@ RU["Main page"] = "Основная страница"
 RU["LB page"] = "Страница LB"
 RU["RB page"] = "Страница RB"
 RU["Clear slot"] = "Очистить слот"
-RU["Reset phrases"] = "Сбросить фразы"
+RU["Emotes"] = "Эмоции"
+RU["Empty"] = "Пустое"
+RU["Wheel name"] = "Название колеса"
+RU["Channel: %s"] = "Канал: %s"
+RU["Reset wheel"] = "Сбросить колесо"
+RU["Delete wheel"] = "Удалить колесо"
+RU["Add a wheel (up to %d). It is filled with the set chosen below."] = "Добавить колесо (до %d). Оно заполняется набором, выбранным ниже."
+RU["Shown above the wheel. Leave it empty for \"Quick Chat\"."] = "Показывается над колесом. Оставьте пустым для \"Быстрый чат\"."
+RU["Where the phrases of this wheel go when a phrase has no type of its own. Default follows the general setting."] = "Куда идут фразы этого колеса, если у фразы нет своего типа. \"По умолчанию\" - как в общей настройке."
+RU["The set \"Reset wheel\" and the + button fill a wheel with."] = "Набор, которым заполняют колесо кнопки \"Сбросить колесо\" и +."
+RU["Replace all phrases of wheel %d with the set \"%s\"?\n\nIts current phrases will be lost. Export them first if you want to keep them."] = "Заменить все фразы колеса %d набором \"%s\"?\n\nТекущие фразы этого колеса будут потеряны. Если хотите их сохранить, сначала сделайте экспорт."
+RU["Delete wheel %d with all its phrases?"] = "Удалить колесо %d со всеми его фразами?"
+RU["Hold RB and press R3 to open the wheel. LB and RB turn the page of phrases, LT and RT switch between the wheels: the wheel you used last opens next time."] = "Зажмите RB и нажмите R3, чтобы открыть колесо. LB и RB листают страницы фраз, LT и RT переключают колёса: в следующий раз откроется то колесо, которое было выбрано последним."
+RU["Wheels and phrases are edited on the \"Phrases\" page."] = "Колёса и фразы настраиваются на странице \"Фразы\"."
 RU["Preview wheel"] = "Показать колесо"
 
 RU["Up"] = "Вверх"
@@ -353,18 +452,17 @@ RU["Up-Left"] = "Вверх-влево"
 RU["Usage:"] = "Использование:"
 RU["open settings"] = "открыть настройки"
 RU["toggle the wheel for mouse testing"] = "показать колесо для проверки мышью"
-RU["reset phrases to the defaults"] = "сбросить фразы к стандартным"
-RU["Phrases were reset."] = "Фразы сброшены."
+RU["reset all wheels to the defaults"] = "сбросить все колёса к стандартным"
+RU["Wheels were reset."] = "Колёса сброшены."
 
 RU["Where phrases are sent. Auto: while you are in a group they go to the group chat (party, raid or instance), otherwise to Say.\n\nA phrase with its own type in the phrase editor (Yell, for example) always uses that type and ignores this setting."] = "Куда отправляются фразы. Авто: пока вы в группе, фразы идут в чат группы (группа, рейд или подземелье), иначе - в \"Сказать\".\n\nЕсли у фразы в редакторе выбран свой тип (например, \"Крик\"), она всегда отправляется так и эту настройку не учитывает."
 RU["One message per line. Several lines make a random group: one of them is sent each time. %t is your target's name, %q is the quest you are tracking. A line can also be a game command such as /dance: the character performs it instead of saying the text."] = "Одно сообщение на строку. Несколько строк - это случайная группа: каждый раз отправляется одна из них. %t - имя цели, %q - отслеживаемое задание. Строка может быть и игровой командой, например /dance: персонаж выполнит её вместо отправки текста."
 RU["Auto"] = "Авто"
-RU["Replace all phrases with the default set (%s)?\n\nAll your current phrases will be lost. Export them first if you want to keep them."] = "Заменить все фразы стандартным набором (%s)?\n\nВсе ваши текущие фразы будут потеряны. Если хотите их сохранить, сначала сделайте экспорт."
 RU["Export"] = "Экспорт"
 RU["Import"] = "Импорт"
 RU["Export phrases"] = "Экспорт фраз"
 RU["Import phrases"] = "Импорт фраз"
-RU["All your phrases as one text. Press Ctrl+C to copy it and keep it somewhere safe."] = "Все ваши фразы одним текстом. Нажмите Ctrl+C, чтобы скопировать его, и сохраните в надёжном месте."
-RU["Paste an exported text here (Ctrl+V). Importing replaces all your current phrases."] = "Вставьте сюда текст экспорта (Ctrl+V). Импорт заменит все ваши текущие фразы."
+RU["All phrases of wheel %d as one text. Press Ctrl+C to copy it and keep it somewhere safe."] = "Все фразы колеса %d одним текстом. Нажмите Ctrl+C, чтобы скопировать его, и сохраните в надёжном месте."
+RU["Paste an exported text here (Ctrl+V). Importing replaces all phrases of wheel %d."] = "Вставьте сюда текст экспорта (Ctrl+V). Импорт заменит все фразы колеса %d."
 RU["This text is not a Forever Pie export."] = "Этот текст не является экспортом Forever Pie."
 RU["Phrases were imported."] = "Фразы импортированы."

@@ -2,9 +2,9 @@
 
 ![Forever Pie](assets/preview.png)
 
-Radial quick chat for gamepad players in **World of Warcraft: Forever**. 24+ phrases on one wheel: 24 slots, and every slot can hold a whole group of random lines. Say hello, ask for a buff or call for help without reaching for a keyboard.
+Radial quick chat for gamepad players in **World of Warcraft: Forever**. Up to 5 wheels of 24+ phrases: every wheel has 24 slots, and every slot can hold a whole group of random lines. Say hello, ask for a buff or call for help without reaching for a keyboard.
 
-Category: **Chat & Communication**
+Category: **Chat & Communication** - Version: **1.1** - [Changelog](CHANGELOG.md)
 
 ## What it does
 
@@ -20,18 +20,21 @@ Every direction holds **3 phrases**, so the wheel gives you 24 slots:
 
 All three are always visible in the segment. The one you are about to send is drawn large and bright, the other two stay small, so you never have to remember what is where.
 
+There can be up to **5 wheels**, each with its own 24 slots. A column of dots on the left of the wheel shows which one is open: **LT** goes up the column, **RT** goes down. The addon starts with two wheels - phrases in the game language and emotes - and remembers the wheel you used last, so that is the one that opens next time.
+
 ## Features
 
 - **Opens like a menu.** RB + R3 opens the wheel and it stays until you send or cancel. You can keep walking and using abilities meanwhile; R3 alone is left to the game, nothing is rebound.
-- **24 slots** - 8 directions x 3 pages, paged with single presses of the bumpers like the tabs of the game's menu.
+- **24 slots per wheel** - 8 directions x 3 pages, paged with single presses of the bumpers like the tabs of the game's menu.
+- **Up to 5 wheels** - switched with the triggers. Keep phrases in your language on one, the English set on another, guild chat on a third. Every wheel has its own name and its own channel, and the last one you used is remembered.
 - **Phrase type per slot** - say, yell, party, raid, instance, guild or emote. A slot can simply follow the default channel, or always yell.
 - **Random groups** - put several messages in one slot and a random one is sent each time. "Greeting" can be "Hi!", "Hello!" or "Salut!". The defaults include a group of Warcraft III Dryad lines as an example.
 - **Emotes and commands** - a line can be a game command instead of text: `/dance` makes the character dance, `/cheer`, `/wave` and other emotes work too, as do slash commands of other addons. Commands mix with text in random groups.
-- **Visual editor** - the settings page shows the same wheel; click a slot and edit its name, type and messages.
+- **Visual editor** - the settings page shows the same wheel; click a slot and edit its name, type and messages. Tabs above it switch, add and delete wheels.
 - **`%t`** in a message is replaced with your target's name, **`%q`** with a link to the quest in focus (the super-tracked one, else the first tracked): `Can you help with %q?`
 - **Native look** - uses the game's own radial menu art and the button icons of your controller (Xbox, PlayStation, Switch).
-- **Default phrase sets** in English, Russian, Ukrainian, French, Polish and Portuguese: pick one next to "Reset phrases".
-- **Export / import** - save all your phrases as one line of text and paste it back later or on another character.
+- **Default phrase sets** in English, Russian, Ukrainian, French, Polish and Portuguese, plus a set of emotes: pick one next to "Reset wheel". Only the wheel you are editing is reset.
+- **Export / import** - save the phrases of a wheel as one line of text and paste it back later, into another wheel or on another character.
 - English and Russian interface, following the game language.
 
 ## Controls
@@ -41,11 +44,12 @@ All three are always visible in the segment. The one you are about to send is dr
 | Hold RB + press R3 | open the wheel |
 | Right stick | point at a direction |
 | LB / RB (press) | page left / right: LB page - main page - RB page, wrapping around |
+| LT / RT (press) | previous / next wheel, wrapping around |
 | Let the stick go | send the highlighted phrase |
 | R3 | drop the current pick; close the wheel when nothing is picked |
 | B / Circle | close |
 
-The wheel always opens on the main page.
+The wheel always opens on the main page of the wheel you used last.
 
 The default channel and wheel scale can be changed in the settings.
 
@@ -54,7 +58,12 @@ The default channel and wheel scale can be changed in the settings.
 Open with `/fpie` or from Options - AddOns - Forever Pie.
 
 - **Forever Pie** - default channel and wheel scale. On Auto, phrases go to the group chat while you are in a group and to Say otherwise; a phrase with its own type ignores this.
-- **Phrases** - the wheel editor. Click a slot, then set:
+- **Phrases** - the wheel editor. The numbered tabs pick the wheel to edit, **+** adds one (up to 5) and "Delete wheel" removes it. Under the tabs are the settings of that wheel:
+  - **Wheel name** - shown above the wheel instead of "Quick Chat";
+  - **Channel** - where the phrases of this wheel go when a phrase has no type of its own. Default follows the general setting; Guild turns the whole wheel into a guild chat wheel;
+  - **Set** and **Reset wheel** - replace the phrases of this wheel with a default set: one of the six languages, the emotes, or an empty wheel. The same set fills a wheel added with **+**.
+
+  Click a slot on the wheel, then set:
   - **Name on the wheel** - short text shown in the segment;
   - **Type** - how the phrase is spoken;
   - **Messages** - one per line. More than one line makes a random group. A line like `/dance` runs the emote instead of sending text.
@@ -62,8 +71,8 @@ Open with `/fpie` or from Options - AddOns - Forever Pie.
 Slash commands:
 
 - `/fpie` - open settings
-- `/fpie toggle` - show the wheel for mouse testing (move to aim, scroll to switch phrase, click to send)
-- `/fpie reset` - reset phrases to the defaults
+- `/fpie toggle` - show the wheel for mouse testing (move to aim, scroll to switch phrase, click a dot on the left to switch wheel, click to send)
+- `/fpie reset` - reset all wheels to the two starting ones
 
 ## Editing the default phrases
 
@@ -75,8 +84,8 @@ Copy the `ForeverPie` folder into `World of Warcraft/_forever_/Interface/AddOns/
 
 ## Notes
 
-- While the wheel is open only its own buttons (B, LB, RB, R3) and the aiming stick are taken from the game, so the camera stays put; movement and everything else keep working.
-- The game does not let addons block a button during combat, so in combat RB + R3 opens the wheel and the game's own R3 action (ping) runs as well, the wheel's buttons (B, LB, RB) also do their normal game action, and the camera turns while you aim.
+- While the wheel is open only its own buttons (B, LB, RB, LT, RT, R3) and the aiming stick are taken from the game, so the camera stays put; movement and everything else keep working.
+- The game does not let addons block a button during combat, so in combat RB + R3 opens the wheel and the game's own R3 action (ping) runs as well, the wheel's buttons (B, LB, RB, LT, RT) also do their normal game action, and the camera turns while you aim.
 - Say, yell and emote are sent on a real button press or release, as the game requires.
 - Secure commands (`/cast`, `/use`, `/target` and other macro-only commands) cannot be run by addons, so they do not work in a slot.
 
@@ -86,23 +95,27 @@ If you like the addon and want to thank the author, send some coins in game :) E
 
 ## Русский
 
-Радиальный быстрый чат для геймпада в **World of Warcraft: Forever**. От 24 фраз на одном колесе: 24 слота, и в каждом может лежать целая группа случайных реплик. Поздоровайтесь, попросите бафф или позовите на помощь, не дотягиваясь до клавиатуры.
+Радиальный быстрый чат для геймпада в **World of Warcraft: Forever**. До 5 колёс, от 24 фраз на каждом: 24 слота, и в каждом может лежать целая группа случайных реплик. Поздоровайтесь, попросите бафф или позовите на помощь, не дотягиваясь до клавиатуры.
 
 Зажмите **RB**, нажмите и удерживайте **R3** (клик правым стиком) - в центре экрана откроется колесо в стиле родного геймпад-меню. Колесо остаётся открытым, пока вы не выберете фразу; ходить и пользоваться способностями при этом можно. Камера на это время замирает. Наведите стиком на одно из 8 направлений и отпустите стик - фраза уйдёт в чат. R3 без RB выполняет своё обычное действие (маяк). Отмена - B.
 
 В каждом направлении **3 фразы** на трёх страницах: основная, страница **LB** и страница **RB**. Страницы листаются одиночными нажатиями LB и RB, как вкладки родного меню, держать ничего не нужно. Все три фразы видны сразу, а та, что будет отправлена, показана крупно.
 
+Колёс может быть **до 5**, у каждого свои 24 слота. Слева от колеса - вертикальный ряд кружков, он показывает, какое колесо открыто: **LT** переключает вверх, **RT** вниз. После установки колёс два - фразы на языке игры и эмоции. Аддон запоминает последнее выбранное колесо: в следующий раз откроется именно оно.
+
+- **Колёса**: на странице "Фразы" вкладки с номерами выбирают колесо для редактирования, **+** добавляет новое (до 5), "Удалить колесо" убирает его. У колеса есть название (показывается над колесом) и свой канал для фраз без собственного типа: выберите "Гильдия" - и всё колесо пишет в гильдию.
+
 - **Тип фразы** для каждого слота: сказать, крик, группа, рейд, подземелье, гильдия, эмоция.
 - **Случайные группы**: несколько сообщений в одном слоте, каждый раз отправляется случайное. Например "Приветствие": "Привет!", "Салют!", "Здравствуйте!". По умолчанию есть группа с репликами Дриады из Warcraft III.
 - **Эмоции и команды**: строка может быть игровой командой вместо текста. `/dance` - персонаж танцует, работают `/cheer`, `/wave` и другие эмоции, а также команды других аддонов. Команды можно смешивать с текстом в случайных группах. Защищённые команды (`/cast`, `/use`, `/target`) аддонам недоступны.
-- **Стандартные наборы фраз** на английском, русском, украинском, французском, польском и португальском: язык выбирается рядом с кнопкой "Сбросить фразы", перед сбросом аддон предупреждает, что текущие фразы пропадут.
-- **Экспорт / импорт**: все фразы сохраняются одной строкой текста, её можно вставить обратно позже или на другом персонаже.
+- **Стандартные наборы фраз** на английском, русском, украинском, французском, польском и португальском, а также набор эмоций и пустое колесо: набор выбирается рядом с кнопкой "Сбросить колесо". Сбрасывается только редактируемое колесо, перед сбросом аддон предупреждает, что его текущие фразы пропадут.
+- **Экспорт / импорт**: фразы колеса сохраняются одной строкой текста, её можно вставить обратно позже, в другое колесо или на другом персонаже.
 - **Редактор-колесо** в настройках: нажмите на слот и измените название, тип и сообщения.
 - `%t` в сообщении заменяется именем цели, `%q` - ссылкой на задание в фокусе (то, на которое указывает игра, иначе первое отслеживаемое): `Можете помочь с заданием %q?`
 - **Конструктор стандартных фраз**: откройте `tools/phrase-builder.html` в браузере, измените слоты русского набора и скопируйте готовый блок в `ForeverPie/Locale.lua`. Русский набор - исходный, остальные языки переводятся с него.
-- В бою игра не даёт аддонам блокировать кнопку, поэтому в бою RB + R3 откроет колесо, но и маяк тоже сработает, кнопки колеса (B, LB, RB) заодно выполнят своё обычное действие, а камера будет поворачиваться при наведении.
+- В бою игра не даёт аддонам блокировать кнопку, поэтому в бою RB + R3 откроет колесо, но и маяк тоже сработает, кнопки колеса (B, LB, RB, LT, RT) заодно выполнят своё обычное действие, а камера будет поворачиваться при наведении.
 
-Настройки: `/fpie`. Установка: скопируйте папку `ForeverPie` в `World of Warcraft/_forever_/Interface/AddOns/`.
+Настройки: `/fpie`. Что изменилось в версиях: [CHANGELOG.md](CHANGELOG.md). Установка: скопируйте папку `ForeverPie` в `World of Warcraft/_forever_/Interface/AddOns/`.
 
 ### Поблагодарить автора
 
