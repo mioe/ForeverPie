@@ -25,6 +25,14 @@ local VARIANT_NAMES = LocalizedNames({
 })
 
 local GOLD_R, GOLD_G, GOLD_B = 1, 0.82, 0
+local BORDER_R, BORDER_G, BORDER_B = 0.6, 0.5, 0.25
+
+-- Every control is this high, every page keeps these margins, and controls in a row or a column
+-- are this far apart.
+local CONTROL_HEIGHT = 22
+local LEFT_INSET, RIGHT_INSET = 7, 36
+local TITLE_Y = -16
+local GAP = 8
 
 local mainCategory
 
@@ -34,7 +42,7 @@ local mainCategory
 
 local function CreatePanelButton(parent, text, width, onClick)
 	local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
-	button:SetSize(width, 22)
+	button:SetSize(width, CONTROL_HEIGHT)
 	button:SetText(text)
 	button:SetScript("OnClick", onClick)
 	return button
@@ -58,15 +66,74 @@ local function SetTooltip(frame, text)
 	end)
 end
 
--- Dark box with a thin border, shared by the selectors and the windows.
+-- Dark box with a thin border, shared by the selectors, the text fields and the windows.
 local function AddBox(frame, alpha)
 	local border = frame:CreateTexture(nil, "BACKGROUND", nil, -1)
 	border:SetPoint("TOPLEFT", -1, 1)
 	border:SetPoint("BOTTOMRIGHT", 1, -1)
-	border:SetColorTexture(0.6, 0.5, 0.25, 1)
+	border:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
 	local background = frame:CreateTexture(nil, "BACKGROUND")
 	background:SetAllPoints()
 	background:SetColorTexture(0.05, 0.05, 0.05, alpha)
+	return border
+end
+
+-- The border of a text field turns bright while the field is being typed in.
+local function AddFocusBorder(editBox, border)
+	editBox:HookScript("OnEditFocusGained", function()
+		border:SetColorTexture(GOLD_R, GOLD_G, GOLD_B, 1)
+	end)
+	editBox:HookScript("OnEditFocusLost", function()
+		border:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
+	end)
+end
+
+-- One-line text field in the same box and font as the selectors.
+local function CreateInput(parent, width, maxLetters)
+	local input = CreateFrame("EditBox", nil, parent)
+	input:SetSize(width, CONTROL_HEIGHT)
+	input:SetAutoFocus(false)
+	input:SetFontObject(GameFontHighlightSmall)
+	input:SetTextInsets(8, 8, 0, 0)
+	input:SetMaxLetters(maxLetters)
+	AddFocusBorder(input, AddBox(input, 0.8))
+	input:SetScript("OnEnterPressed", EditBox_ClearFocus)
+	input:SetScript("OnEscapePressed", EditBox_ClearFocus)
+	return input
+end
+
+-- Multi-line text field with a scroll bar inside the same box. The edit box is area.box.
+local function CreateTextArea(parent, maxLetters)
+	local area = CreateFrame("Frame", nil, parent)
+	local border = AddBox(area, 0.8)
+
+	local scroll = CreateFrame("ScrollFrame", nil, area, "ScrollFrameTemplate")
+	scroll:SetPoint("TOPLEFT", 8, -6)
+	scroll:SetPoint("BOTTOMRIGHT", -22, 6)
+
+	local box = CreateFrame("EditBox", nil, scroll)
+	box:SetMultiLine(true)
+	box:SetAutoFocus(false)
+	box:SetFontObject(GameFontHighlightSmall)
+	box:SetWidth(100)
+	box:SetMaxLetters(maxLetters)
+	box:SetScript("OnEscapePressed", EditBox_ClearFocus)
+	AddFocusBorder(box, border)
+	scroll:SetScrollChild(box)
+	-- The area is sized by its anchors, so the text follows whatever width it ends up with.
+	scroll:HookScript("OnSizeChanged", function(_, width)
+		box:SetWidth(width)
+	end)
+
+	local function Focus()
+		box:SetFocus()
+	end
+	scroll:EnableMouse(true)
+	scroll:SetScript("OnMouseDown", Focus)
+	area:EnableMouse(true)
+	area:SetScript("OnMouseDown", Focus)
+	area.box = box
+	return area
 end
 
 -- One option list shared by every selector. A screen-sized button under it closes the list on a
@@ -126,7 +193,7 @@ end
 -- getOptions() returns { { value, text }, ... }; format (optional) wraps the shown text.
 local function CreateSelector(parent, width, getOptions, getValue, setValue, format)
 	local selector = CreateFrame("Button", nil, parent)
-	selector:SetSize(width, 22)
+	selector:SetSize(width, CONTROL_HEIGHT)
 	AddBox(selector, 0.8)
 	selector.setValue = setValue
 
@@ -181,7 +248,7 @@ local function CreateSelector(parent, width, getOptions, getValue, setValue, for
 		list.owner = self
 		list:ClearAllPoints()
 		list:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -3)
-		list:SetSize(math.max(width, 150), #options * SELECTOR_ROW_HEIGHT + 4)
+		list:SetSize(math.max(self:GetWidth(), 150), #options * SELECTOR_ROW_HEIGHT + 4)
 		list.dismiss:Show()
 	end)
 	selector:SetScript("OnHide", function(self)
@@ -242,9 +309,10 @@ local function CreateGeneralPanel()
 	local panel = CreateFrame("Frame")
 	panel:Hide()
 	local TEXT_WIDTH = 560
+	local CONTROL_WIDTH = 240
 
 	local title = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightHuge")
-	title:SetPoint("TOPLEFT", 7, -22)
+	title:SetPoint("TOPLEFT", LEFT_INSET, TITLE_Y)
 	title:SetText("Forever Pie")
 
 	local controls = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
@@ -256,7 +324,7 @@ local function CreateGeneralPanel()
 		.. "\n\n" .. L["Wheels and phrases are edited on the \"Phrases\" page."])
 
 	local channelCaption = CreateCaption(panel, L["Default channel"], controls, -24)
-	local channel = CreateSelector(panel, 240, function()
+	local channel = CreateSelector(panel, CONTROL_WIDTH, function()
 		return ChannelOptions(ns.CHANNEL_ORDER)
 	end, function()
 		return ns.db.channel
@@ -276,19 +344,25 @@ local function CreateGeneralPanel()
 	local scaleCaption = CreateCaption(panel, L["Wheel scale"], channelHelp, -24)
 	local slider = CreateFrame("Slider", nil, panel)
 	slider:SetOrientation("HORIZONTAL")
-	slider:SetSize(240, 18)
+	slider:SetSize(CONTROL_WIDTH, CONTROL_HEIGHT)
 	slider:SetPoint("TOPLEFT", scaleCaption, "BOTTOMLEFT", 0, -6)
 	slider:EnableMouse(true)
 	slider:SetMinMaxValues(0.7, 1.4)
 	slider:SetValueStep(0.05)
 	slider:SetObeyStepOnDrag(true)
+	-- The track is the same bordered box as the selector above it, only thinner.
+	local trackBorder = slider:CreateTexture(nil, "BACKGROUND", nil, -1)
+	trackBorder:SetPoint("LEFT", -1, 0)
+	trackBorder:SetPoint("RIGHT", 1, 0)
+	trackBorder:SetHeight(8)
+	trackBorder:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
 	local track = slider:CreateTexture(nil, "BACKGROUND")
 	track:SetPoint("LEFT")
 	track:SetPoint("RIGHT")
 	track:SetHeight(6)
-	track:SetColorTexture(0, 0, 0, 0.7)
+	track:SetColorTexture(0.05, 0.05, 0.05, 0.8)
 	local thumb = slider:CreateTexture(nil, "ARTWORK")
-	thumb:SetSize(10, 18)
+	thumb:SetSize(10, CONTROL_HEIGHT - 4)
 	thumb:SetColorTexture(GOLD_R, GOLD_G, GOLD_B, 1)
 	slider:SetThumbTexture(thumb)
 
@@ -509,7 +583,7 @@ end
 
 local function CreateTab(panel, text, onClick)
 	local tab = CreateFrame("Button", nil, panel)
-	tab:SetSize(TAB_SIZE, 22)
+	tab:SetSize(TAB_SIZE, CONTROL_HEIGHT)
 	AddBox(tab, 0.8)
 
 	tab.Selected = tab:CreateTexture(nil, "BORDER")
@@ -528,8 +602,25 @@ local function CreateTab(panel, text, onClick)
 	return tab
 end
 
--- Two rows above the pie: the wheel tabs, then the settings of the wheel being edited.
-local TAB_ROW_Y, WHEEL_ROW_Y, PIE_Y = -48, -78, -106
+-- Three rows above the pie, equally spaced: the title, the wheel tabs, then the settings of the
+-- wheel being edited.
+local BUTTON_ROW_Y, TAB_ROW_Y, WHEEL_ROW_Y, PIE_Y = -18, -48, -78, -106
+-- The wheel row on the left: name, channel and phrase set.
+local NAME_WIDTH, CHANNEL_WIDTH, SET_WIDTH = 115, 150, 110
+-- Everything on the right is one column from here to the right margin: the wheel buttons, one per
+-- row, and the fields of the selected slot under them.
+local COLUMN_X = LEFT_INSET + NAME_WIDTH + CHANNEL_WIDTH + SET_WIDTH + GAP * 3
+
+local function PlaceInColumn(region, panel, offsetY)
+	region:SetPoint("TOPLEFT", panel, "TOPLEFT", COLUMN_X, offsetY)
+	region:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -RIGHT_INSET, offsetY)
+end
+
+-- Under another region of the column, at its full width.
+local function PlaceBelow(region, anchor, offsetY)
+	region:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, offsetY)
+	region:SetPoint("TOPRIGHT", anchor, "BOTTOMRIGHT", 0, offsetY)
+end
 
 local function CreateWheelControls(panel)
 	for index = 1, ns.MAX_WHEELS do
@@ -537,7 +628,7 @@ local function CreateWheelControls(panel)
 			SelectWheel(index)
 		end)
 		if index == 1 then
-			tab:SetPoint("TOPLEFT", 7, TAB_ROW_Y)
+			tab:SetPoint("TOPLEFT", LEFT_INSET, TAB_ROW_Y)
 		else
 			tab:SetPoint("LEFT", editor.tabs[index - 1], "RIGHT", 2, 0)
 		end
@@ -560,15 +651,12 @@ local function CreateWheelControls(panel)
 			end
 		end)
 	end)
-	editor.delete:SetPoint("TOPRIGHT", -36, TAB_ROW_Y)
+	PlaceInColumn(editor.delete, panel, TAB_ROW_Y)
 
-	local nameBox = CreateFrame("EditBox", nil, panel, "InputBoxTemplate")
-	nameBox:SetSize(140, 22)
-	nameBox:SetPoint("TOPLEFT", 13, WHEEL_ROW_Y)
-	nameBox:SetAutoFocus(false)
-	nameBox:SetMaxLetters(24)
+	local nameBox = CreateInput(panel, NAME_WIDTH, 24)
+	nameBox:SetPoint("TOPLEFT", LEFT_INSET, WHEEL_ROW_Y)
 	nameBox.Placeholder = nameBox:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-	nameBox.Placeholder:SetPoint("LEFT", 2, 0)
+	nameBox.Placeholder:SetPoint("LEFT", 8, 0)
 	nameBox.Placeholder:SetText(L["Wheel name"])
 	nameBox:SetScript("OnTextChanged", function(self, userInput)
 		self.Placeholder:SetShown(self:GetText() == "")
@@ -577,19 +665,10 @@ local function CreateWheelControls(panel)
 			ns.RefreshWheel()
 		end
 	end)
-	nameBox:SetScript("OnEnterPressed", EditBox_ClearFocus)
-	nameBox:SetScript("OnEscapePressed", EditBox_ClearFocus)
-	nameBox:HookScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:SetText(L["Shown above the wheel. Leave it empty for \"Quick Chat\"."], 1, 1, 1, 1, true)
-		GameTooltip:Show()
-	end)
-	nameBox:HookScript("OnLeave", function()
-		GameTooltip:Hide()
-	end)
+	SetTooltip(nameBox, L["Shown above the wheel. Leave it empty for \"Quick Chat\"."])
 	editor.nameBox = nameBox
 
-	editor.channelSelector = CreateSelector(panel, 170, function()
+	editor.channelSelector = CreateSelector(panel, CHANNEL_WIDTH, function()
 		return ChannelOptions(ns.WHEEL_CHANNEL_ORDER)
 	end, function()
 		return CurrentWheel().channel
@@ -597,10 +676,10 @@ local function CreateWheelControls(panel)
 		CurrentWheel().channel = value
 		ns.RefreshWheel()
 	end, L["Channel: %s"])
-	editor.channelSelector:SetPoint("LEFT", nameBox, "RIGHT", 10, 0)
+	editor.channelSelector:SetPoint("LEFT", nameBox, "RIGHT", GAP, 0)
 	SetTooltip(editor.channelSelector, L["Where the phrases of this wheel go when a phrase has no type of its own. Default follows the general setting."])
 
-	editor.setSelector = CreateSelector(panel, 140, function()
+	editor.setSelector = CreateSelector(panel, SET_WIDTH, function()
 		local options = {}
 		for _, set in ipairs(ns.GetPhraseSets()) do
 			table.insert(options, { set, ns.GetPhraseSetName(set) })
@@ -611,7 +690,7 @@ local function CreateWheelControls(panel)
 	end, function(value)
 		editor.set = value
 	end)
-	editor.setSelector:SetPoint("LEFT", editor.channelSelector, "RIGHT", 10, 0)
+	editor.setSelector:SetPoint("LEFT", editor.channelSelector, "RIGHT", GAP, 0)
 	SetTooltip(editor.setSelector, L["The set \"Reset wheel\" and the + button fill a wheel with."])
 
 	local reset = CreatePanelButton(panel, L["Reset wheel"], 130, function()
@@ -621,36 +700,39 @@ local function CreateWheelControls(panel)
 			LoadWheel()
 		end)
 	end)
-	reset:SetPoint("LEFT", editor.setSelector, "RIGHT", 8, 0)
+	PlaceInColumn(reset, panel, WHEEL_ROW_Y)
 end
 
-local function CreateFields(panel, pie)
-	local FIELD_WIDTH = 205
+local function CreateFields(panel)
+	-- Caption above its control, control under its caption, then the next caption.
+	local CAPTION_GAP, FIELD_GAP = -5, -16
+
+	local function Caption(text, anchor, offsetY)
+		local caption = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+		PlaceBelow(caption, anchor, offsetY)
+		caption:SetJustifyH("LEFT")
+		caption:SetText(text)
+		return caption
+	end
 
 	editor.title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-	editor.title:SetPoint("TOPLEFT", pie, "TOPRIGHT", 18, -4)
-	editor.title:SetWidth(FIELD_WIDTH)
+	PlaceInColumn(editor.title, panel, PIE_Y - 4)
 	editor.title:SetJustifyH("LEFT")
 
-	local labelCaption = CreateCaption(panel, L["Name on the wheel"], editor.title, -14)
-	local labelBox = CreateFrame("EditBox", nil, panel, "InputBoxTemplate")
-	labelBox:SetSize(FIELD_WIDTH - 6, 22)
-	labelBox:SetPoint("TOPLEFT", labelCaption, "BOTTOMLEFT", 6, -4)
-	labelBox:SetAutoFocus(false)
-	labelBox:SetMaxLetters(24)
+	local labelCaption = Caption(L["Name on the wheel"], editor.title, -14)
+	local labelBox = CreateInput(panel, 200, 24)
+	PlaceBelow(labelBox, labelCaption, CAPTION_GAP)
 	labelBox:SetScript("OnTextChanged", function(self, userInput)
 		if userInput then
 			CurrentPhrase().label = self:GetText()
 			RefreshSlots()
 		end
 	end)
-	labelBox:SetScript("OnEnterPressed", EditBox_ClearFocus)
-	labelBox:SetScript("OnEscapePressed", EditBox_ClearFocus)
 	editor.labelBox = labelBox
 
 	-- Type: how the phrase is spoken (say, yell, party...). Default follows the wheel's channel.
-	local typeCaption = CreateCaption(panel, L["Type"], labelCaption, -44)
-	editor.typeSelector = CreateSelector(panel, FIELD_WIDTH, function()
+	local typeCaption = Caption(L["Type"], labelBox, FIELD_GAP)
+	editor.typeSelector = CreateSelector(panel, 200, function()
 		return ChannelOptions(ns.PHRASE_CHANNEL_ORDER)
 	end, function()
 		return CurrentPhrase().channel
@@ -658,51 +740,32 @@ local function CreateFields(panel, pie)
 		CurrentPhrase().channel = value
 		RefreshSlots()
 	end)
-	editor.typeSelector:SetPoint("TOPLEFT", typeCaption, "BOTTOMLEFT", 0, -4)
+	PlaceBelow(editor.typeSelector, typeCaption, CAPTION_GAP)
 
-	local textCaption = CreateCaption(panel, L["Messages"], typeCaption, -48)
-	local scroll = CreateFrame("ScrollFrame", nil, panel, "ScrollFrameTemplate")
-	scroll:SetSize(FIELD_WIDTH - 22, 140)
-	scroll:SetPoint("TOPLEFT", textCaption, "BOTTOMLEFT", 4, -8)
-
-	local boxBackground = panel:CreateTexture(nil, "BACKGROUND")
-	boxBackground:SetPoint("TOPLEFT", scroll, -5, 5)
-	boxBackground:SetPoint("BOTTOMRIGHT", scroll, 5, -5)
-	boxBackground:SetColorTexture(0, 0, 0, 0.45)
-
-	local textBox = CreateFrame("EditBox", nil, scroll)
-	textBox:SetMultiLine(true)
-	textBox:SetAutoFocus(false)
-	textBox:SetFontObject(ChatFontNormal)
-	textBox:SetWidth(FIELD_WIDTH - 22)
-	textBox:SetMaxLetters(2000)
-	textBox:SetScript("OnTextChanged", function(self, userInput)
+	local textCaption = Caption(L["Messages"], editor.typeSelector, FIELD_GAP)
+	local textArea = CreateTextArea(panel, 2000)
+	textArea:SetHeight(150)
+	PlaceBelow(textArea, textCaption, CAPTION_GAP)
+	textArea.box:SetScript("OnTextChanged", function(self, userInput)
 		if userInput then
 			CurrentPhrase().text = self:GetText()
 			RefreshSlots()
 		end
 	end)
-	textBox:SetScript("OnEscapePressed", EditBox_ClearFocus)
-	scroll:SetScrollChild(textBox)
-	scroll:EnableMouse(true)
-	scroll:SetScript("OnMouseDown", function()
-		textBox:SetFocus()
-	end)
-	editor.textBox = textBox
+	editor.textBox = textArea.box
 
 	local help = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	help:SetPoint("TOPLEFT", scroll, "BOTTOMLEFT", -4, -12)
-	help:SetWidth(FIELD_WIDTH)
+	PlaceBelow(help, textArea, -10)
 	help:SetJustifyH("LEFT")
 	help:SetWordWrap(true)
 	help:SetText(L["One message per line. Several lines make a random group: one of them is sent each time. %t is your target's name, %q is the quest you are tracking. A line can also be a game command such as /dance: the character performs it instead of saying the text."])
 
-	local clear = CreatePanelButton(panel, L["Clear slot"], 130, function()
+	local clear = CreatePanelButton(panel, L["Clear slot"], 200, function()
 		local phrase = CurrentPhrase()
 		phrase.label, phrase.text, phrase.channel = "", "", "DEFAULT"
 		LoadSlot()
 	end)
-	clear:SetPoint("TOPLEFT", help, "BOTTOMLEFT", 0, -10)
+	PlaceBelow(clear, help, -12)
 end
 
 ------------------------------------------------------------
@@ -729,29 +792,13 @@ local function CreateTransferDialog()
 	frame.note:SetJustifyH("LEFT")
 	frame.note:SetWordWrap(true)
 
-	local scroll = CreateFrame("ScrollFrame", nil, frame, "ScrollFrameTemplate")
-	scroll:SetPoint("TOPLEFT", 20, -84)
-	scroll:SetPoint("BOTTOMRIGHT", -40, 52)
-
-	local boxBackground = frame:CreateTexture(nil, "BORDER")
-	boxBackground:SetPoint("TOPLEFT", scroll, -5, 5)
-	boxBackground:SetPoint("BOTTOMRIGHT", scroll, 5, -5)
-	boxBackground:SetColorTexture(0, 0, 0, 0.6)
-
-	local box = CreateFrame("EditBox", nil, scroll)
-	box:SetMultiLine(true)
-	box:SetAutoFocus(false)
-	box:SetFontObject(ChatFontNormal)
-	box:SetWidth(416)
-	box:SetMaxLetters(0)
+	local area = CreateTextArea(frame, 0)
+	area:SetPoint("TOPLEFT", 16, -80)
+	area:SetPoint("BOTTOMRIGHT", -16, 48)
+	local box = area.box
 	-- The box holds the focus while the window is open, so Escape always lands here.
 	box:SetScript("OnEscapePressed", function()
 		frame:Hide()
-	end)
-	scroll:SetScrollChild(box)
-	scroll:EnableMouse(true)
-	scroll:SetScript("OnMouseDown", function()
-		box:SetFocus()
 	end)
 	frame.box = box
 
@@ -794,7 +841,7 @@ local function CreatePhrasePanel()
 	panel:Hide()
 
 	local title = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightHuge")
-	title:SetPoint("TOPLEFT", 7, -16)
+	title:SetPoint("TOPLEFT", LEFT_INSET, TITLE_Y)
 	title:SetText(L["Phrases"])
 
 	-- Shows the wheel being edited, which also makes it the one that opens in the game.
@@ -806,7 +853,7 @@ local function CreatePhrasePanel()
 			ns.ShowWheel(true)
 		end
 	end)
-	preview:SetPoint("TOPRIGHT", -36, -14)
+	PlaceInColumn(preview, panel, BUTTON_ROW_Y)
 
 	CreateWheelControls(panel)
 
@@ -826,7 +873,7 @@ local function CreatePhrasePanel()
 	end)
 	import:SetPoint("TOPLEFT", hint, "BOTTOM", 4, -8)
 
-	CreateFields(panel, pie)
+	CreateFields(panel)
 
 	-- The editor opens on the wheel that is current in the game.
 	local opened = false

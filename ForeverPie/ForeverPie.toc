@@ -3,7 +3,7 @@
 ## Notes: Radial quick chat for gamepad in World of Warcraft: Forever, up to 5 wheels of 24+ phrases. Hold RB and press R3 to open, aim with the stick, LB and RB turn the page, LT and RT switch wheels, let the stick go to send.
 ## Notes-ruRU: Радиальный быстрый чат для геймпада в World of Warcraft: Forever, до 5 колёс по 24+ фразы. Зажмите RB и нажмите R3, наведите стиком, LB и RB листают страницы фраз, LT и RT переключают колёса, отпустите стик для отправки.
 ## Author: mioe
-## Version: 1.1
+## Version: 1.2
 ## Category: Chat & Communication
 ## Category-enUS: Chat & Communication
 ## Category-ruRU: Чат и общение

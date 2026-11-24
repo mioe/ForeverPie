@@ -4,7 +4,7 @@
 
 Radial quick chat for gamepad players in **World of Warcraft: Forever**. Up to 5 wheels of 24+ phrases: every wheel has 24 slots, and every slot can hold a whole group of random lines. Say hello, ask for a buff or call for help without reaching for a keyboard.
 
-Category: **Chat & Communication** - Version: **1.1** - [Changelog](CHANGELOG.md)
+Category: **Chat & Communication** - Version: **1.2** - [Changelog](CHANGELOG.md)
 
 ## What it does
 
@@ -93,6 +93,8 @@ Copy the `ForeverPie` folder into `World of Warcraft/_forever_/Interface/AddOns/
 
 If you like the addon and want to thank the author, send some coins in game :) Europe, WoW Forever, PvE realm, character **Zelda Highblood**.
 
+- I play for the Horde, so the coins have to come from a Horde character. Lok'tar ogar!
+
 ## Русский
 
 Радиальный быстрый чат для геймпада в **World of Warcraft: Forever**. До 5 колёс, от 24 фраз на каждом: 24 слота, и в каждом может лежать целая группа случайных реплик. Поздоровайтесь, попросите бафф или позовите на помощь, не дотягиваясь до клавиатуры.
@@ -120,6 +122,8 @@ If you like the addon and want to thank the author, send some coins in game :) E
 ### Поблагодарить автора
 
 Если аддон понравился и хочется отблагодарить автора - присылайте монетки в игре :) Европа, WoW Forever, PvE-сервер, персонаж **Zelda Highblood**.
+
+- Я играю за Орду, так что монетки нужно отправлять с персонажа Орды. Лок'тар огар!
 
 ## License
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2 - 2026-11-24
+
+### Changed
+
+- **One style for the settings pages.** The text fields (wheel name, name on the wheel, messages, the export / import box) are now drawn in the same bordered box and font as the selectors, and the border lights up while you type. The scale slider got the same border.
+- **Aligned layout on the "Phrases" page.** "Preview wheel", "Delete wheel" and "Reset wheel" are one column of equal buttons, one per row, lined up with the slot fields under them; the wheel name, channel and set selectors fill the row on the left with equal gaps. Both pages share the same title position and margins.
+
+### Русский
+
+Изменено:
+
+- **Единый стиль страниц настроек.** Текстовые поля (название колеса, название на колесе, сообщения, окно экспорта / импорта) теперь рисуются в той же рамке и тем же шрифтом, что и выпадающие списки, а рамка подсвечивается во время ввода. Такая же рамка у ползунка масштаба.
+- **Выровненная раскладка страницы "Фразы".** Кнопки просмотра, удаления и сброса колеса - один столбец одинаковых кнопок, по одной в строке, на одной линии с полями слота под ними; название колеса, канал и набор заполняют строку слева с равными отступами. У обеих страниц одинаковое положение заголовка и поля.
+
 ## 1.1 - 2026-11-22
 
 ### Added
