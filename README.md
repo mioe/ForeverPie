@@ -91,9 +91,7 @@ Copy the `ForeverPie` folder into `World of Warcraft/_forever_/Interface/AddOns/
 
 ## Say thanks
 
-If you like the addon and want to thank the author, send some coins in game :) Europe, WoW Forever, PvE realm, character **Zelda Highblood**.
-
-- I play for the Horde, so the coins have to come from a Horde character. Lok'tar ogar!
+If you like the addon and want to thank the author, send some coins in game :) Europe, WoW Forever, PvE realm, Horde, character **Zelda Highblood**.
 
 ## Русский
 
@@ -121,9 +119,7 @@ If you like the addon and want to thank the author, send some coins in game :) E
 
 ### Поблагодарить автора
 
-Если аддон понравился и хочется отблагодарить автора - присылайте монетки в игре :) Европа, WoW Forever, PvE-сервер, персонаж **Zelda Highblood**.
-
-- Я играю за Орду, так что монетки нужно отправлять с персонажа Орды. Лок'тар огар!
+Если аддон понравился и хочется отблагодарить автора - присылайте монетки в игре :) Европа, WoW Forever, PvE-сервер, Орда, персонаж **Zelda Highblood**.
 
 ## License
 
